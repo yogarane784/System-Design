@@ -1,0 +1,129 @@
+
+
+### Functional Requirements
+- Create/ Schedule a job (Immediate , Future, Recurring)
+- User can monitor the status of their jobs
+
+#### Scale : 
+- 10k jobs executed per second
+
+#### Out of scope
+ - Users should be able to cancel or reschedule jobs.
+
+###  Non Functional Requirements
+- Availability >> Consistency i.e Its fine if any job created now doesnt appear for a few seconds to anyone else opening the job portal anywhere else in the world. Except unless its a space station or military priority job.
+- Execute jobs within 2 seconds of their scheduled time
+- Scalability : 10k job executions per second
+- At least once job execution : so if the Task is to send email, this will ensure the task is run at least once, it wont guarantee the email is sent
+
+### Entities
+- Task
+- Job
+- Executions
+- User/Team
+
+
+### API
+- POST /jobs
+{
+ "task_id": "send_email",
+  "schedule": "0 10 * * *",
+  "parameters": {
+    "to": "john@example.com",
+    "subject": "Daily Report"
+  }
+}
+
+- GET /jobs?user_id={user_id}&status={status}&start_time={start_time}&end_time={end_time} -> Job[]
+
+- DELETE /jobs/{jobId}
+
+- DELETE /jobs/execution/{executionId}
+
+
+### Data flow
+- A user schedules a job by providing the task to be executed, the schedule for when the task should be executed, and the parameters needed to execute the task.
+- The job is persisted in the system.
+- The job is picked up by a worker and executed at the scheduled time.
+- If the job fails, it is retried with exponential backoff.
+- Update the job status in the system.
+
+
+### Design
+- When it comes to choosing a database, the hard truth is that any modern database will work.
+- Given no need for strong consistency and our data has few relationships, I'm going to opt for a flexible key value store like DynamoDB to make scaling later on easier
+
+
+```
+{
+  "job_id": "123e4567-e89b-12d3-a456-426614174000",
+  "user_id": "user_123",
+  "task_id": "send_email",
+  "scheduled_at": 1715548800,
+  "parameters": {
+    "to": "john@example.com",
+    "subject": "Daily Report"
+  },
+  "status": "PENDING"
+}
+```
+
+With CRON expressions, it gets tough as we cant scan the entire database and resolve each cron expression to know when to run the next job
+This works fine for one-time jobs, but it breaks down when we consider recurring schedules.
+Consider a daily email report that needs to run at 10 AM every day.
+We could store the CRON expression (0 10 * * *) in our table, but then how do we efficiently find which jobs need to run in the next few minutes?
+We'd need to evaluate every single CRON expression in our database—clearly not scalable.
+
+Solution is : we need to separate the definition of a job from its execution instances
+
+Let's split our data into two tables. First, our Jobs table stores the job definitions:
+```
+{
+  "job_id": "123e4567-e89b-12d3-a456-426614174000",  // Partition key for easy lookup by job_id
+  "user_id": "user_123", 
+  "task_id": "send_email",
+  "schedule": {
+    "type": "CRON" | "DATE" 
+    "expression": "0 10 * * *"  // Every day at 10:00 AM for CRON, specific date for DATE
+  },
+  "parameters": {
+    "to": "john@example.com",
+    "subject": "Daily Report"
+  }
+}
+```
+
+Then, our Executions table tracks each individual time a job should run:
+{
+  "time_bucket": 1715547600,  // Partition key (Unix timestamp rounded down to hour)
+  "execution_time": "1715548800-123e4567-e89b-12d3-a456-426614174000",  // Sort key (exact execution time and the jobId since partition key and sort key must be unique)
+  "job_id": "123e4567-e89b-12d3-a456-426614174000",
+  "user_id": "user_123", 
+  "status": "PENDING",
+  "attempt": 0
+}
+
+By using a time bucket (Unix timestamp rounded down to the nearest hour) as our partition key, we achieve efficient querying while avoiding hot partition issues.
+For example, to find jobs that need to run in the next few minutes, we only need to query the current hour's bucket and possibly the next hour's bucket. The time bucket can be easily calculated:
+time_bucket = (execution_time // 3600) * 3600  # Round down to nearest hour
+
+Simple design is that we have a CRON job that runs on our server, say every hour or every 15 mins, queries the job executions for next few minutes and executes them.
+Also update the status back to the DB so that the service can return status of the jobs for the users to see
+
+
+Second, when a recurring job completes, we can easily schedule its next occurrence by calculating the next execution time and creating a new entry in the Executions table.
+The job definition stays the same, but we keep creating new execution instances.
+
+
+#### Patern identification
+- This pattern of separating the definition of something from its instances is common in system design.
+- You'll see it in calendar systems (event definition vs. occurrences), notification systems (template vs. individual notifications), and many other places. 
+- It's a powerful way to handle recurring or templated behaviors. See the GoPuff Breakdown for another example of this.
+
+
+#### Monitor status of jobs for user
+- We can add a GSI on userId to query jobs for the user
+      - Partition Key: user_id
+      - Sort Key: execution_time + job_id
+
+
