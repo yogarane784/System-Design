@@ -127,3 +127,27 @@ The job definition stays the same, but we keep creating new execution instances.
       - Sort Key: execution_time + job_id
 
 
+### Potential Deep Dives
+
+1) How can we ensure the system executes jobs within 2s of their scheduled time?
+Introduce a two-layered scheduler architecture which marries durability with precision.
+- Phase 1: Query the database: Just like in our current design, we will query the Executions table for jobs that are due for execution in the next ~5 minutes (leaving some buffer for network latency, etc.).
+- Phase 2: Message queue: We'll take the list of jobs returned by our query and push them to a message queue, ordered by execution_time. Workers will then pull jobs from the queue in order and execute the job.
+
+
+Approach
+- Amazon SQS provides a fully managed queue service with native support for delayed message delivery.
+- When scheduling a job, we simply send a message to SQS with a delay value (called a "SQS Delivery Delay"), and SQS handles the rest.
+- For example, if we want to schedule a job to run in 10 seconds, we can send a message to SQS with a delay of 10 seconds. 
+- SQS will then deliver the message to our worker after the delay. Easy as that!
+- This eliminates the need for managing infrastructure while providing all the features we need out of the box.
+- The delivery delay feature ensures messages remain invisible until their scheduled execution time, while visibility timeouts handle worker failures after messages are consumed. 
+- Dead-letter queues capture failed jobs for investigation. High availability is guaranteed across multiple availability zones, and the service scales automatically to handle our load.
+- The native delayed message delivery feature effectively turns SQS into a distributed priority queue, but without the operational complexity of managing it ourselves.
+
+
+For our use case, SQS would be the best choice due to its native support for delayed message delivery (effectively making it a priority queue based on time), 
+automatic handling of worker failures through visibility timeouts, and excellent scaling characteristics for our load of 10k jobs per second.
+
+
+2) How can we ensure the system is scalable to support up to 10k jobs per second?
