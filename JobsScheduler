@@ -149,5 +149,7 @@ Approach
 For our use case, SQS would be the best choice due to its native support for delayed message delivery (effectively making it a priority queue based on time), 
 automatic handling of worker failures through visibility timeouts, and excellent scaling characteristics for our load of 10k jobs per second.
 
+#### Alternative Redis solution
+- If SQS was not to be used, we could have used Redis Sorted Sets which is essentially a heap, and we could have sorted based on execution time.
 
 2) How can we ensure the system is scalable to support up to 10k jobs per second?
