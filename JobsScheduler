@@ -151,5 +151,6 @@ automatic handling of worker failures through visibility timeouts, and excellent
 
 #### Alternative Redis solution
 - If SQS was not to be used, we could have used Redis Sorted Sets which is essentially a heap, and we could have sorted based on execution time.
+but of course then we would need to make this durable, use read replicas, use HA(high availability) sentinel etc
 
 2) How can we ensure the system is scalable to support up to 10k jobs per second?
