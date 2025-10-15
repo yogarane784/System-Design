@@ -75,7 +75,7 @@ Example:
 - Depending on your product goals, that could be fine (like TinyURL) or unwanted (like Bitly, which often reuses existing mappings).
 
 
-### Option A — Use conditional writes
+### Option A — Use conditional writes (optimistic concurrency control (OCC))
 
 - DynamoDB supports conditional put:
 
@@ -90,3 +90,22 @@ Example:
 - The other fails → retry with a new random code
 - ✅ This is the standard way to handle race conditions with random IDs.
   
+
+
+### How people implement “pessimistic locking” in DynamoDB
+
+- Use a separate lock table
+- Table: locks
+- Partition key: resource_id (e.g., shortCode or longUrl)
+- Insert a lock item conditionally:
+- PutItemRequest lockRequest = new PutItemRequest()
+    .withTableName("locks")
+    .withItem(lockItem)
+    .withConditionExpression("attribute_not_exists(resource_id)");
+- If successful → you “hold the lock”
+- If fails → someone else holds the lock → wait/retry
+- Use TTL (Time To Live) for lock expiration
+- Prevents deadlocks if a process crashes while holding the lock
+- Use DynamoDB transactions
+- DynamoDB transactions (TransactWriteItems) can conditionally update multiple items atomically, which can act like a lightweight lock for certain use cases.
+- Still non-blocking: other transactions fail rather than wait.
