@@ -26,4 +26,17 @@ This entry runs the mentioned script every single minute.
 
 2. Using Queues to decouple the services
 
-3. 
+### Indexing in Postgres
+- Default for primary key index is B Tree , so lookup time is O log N
+- We can create anotehr index which uses hash for lookup that reduces lookup time to O(1)
+- We can use CDN but it has the same problem as 302. requests would always get served from CDN
+- So we can use Redis cache  LRU with read through strategy
+
+  
+
+Q. In redis whats the eviction strategy ?  do we dine one? where ?
+Q. What are the different types of cache usage eg Read through , write through etc
+Q. When to use memcachd vs redis vs HA etc
+Q. When to use CDN vs when to not ? 
+Q. Learn moer about HA mode in redis , how it works, what if it still fails for a usecase like url shortener
+Q.
