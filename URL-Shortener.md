@@ -55,7 +55,7 @@ expirationTime?
   - Another option is bijective functions : there are librariries for it. it accepts a number and it takes that number and generate a hash thats mapped one to one so its hard to guess the next number
     
 
-![](https://drive.google.com/file/d/1mhUlSvz9cwm9VNofD7aZate7G-7VekMg/view)
+![Diagram](![](https://drive.google.com/uc?export=view&id=1mhUlSvz9cwm9VNofD7aZate7G-7VekMg))
 
 ### Deep dives : 
 
