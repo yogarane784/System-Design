@@ -63,5 +63,30 @@ expirationTime?
 - Scalability : we can seaparate out the primary service into read and write service to scale independenctly
 - Low latency : once the server comes up , it can get the next 1000 counters from redis , and cache it. if that server goes down , its fine, those 1000 numbers are lost
 - HA mode for Redis to ensure its durable
-  
+
+####. Different users shortening the same long URL
+
+Example:
+
+- User A shortens https://example.com/blog/post → gets abc123
+- User B shortens the same long URL later →
+- since you’re generating randomly, they might get x9YpqR.
+- Now there are two short URLs for the same long URL.
+- Depending on your product goals, that could be fine (like TinyURL) or unwanted (like Bitly, which often reuses existing mappings).
+
+
+### Option A — Use conditional writes
+
+- DynamoDB supports conditional put:
+
+- PutItemRequest request = new PutItemRequest()
+    .withTableName("urls")
+    .withItem(item)
+    .withConditionExpression("attribute_not_exists(shortCode)");
+
+- This ensures the write only succeeds if the short code doesn’t exist.
+- If two requests try the same code simultaneously:
+- One succeeds
+- The other fails → retry with a new random code
+- ✅ This is the standard way to handle race conditions with random IDs.
   
