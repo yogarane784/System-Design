@@ -56,6 +56,7 @@ expirationTime?
     
 
 ![Diagram](![](https://drive.google.com/uc?export=view&id=1mhUlSvz9cwm9VNofD7aZate7G-7VekMg))
+![alt text](./images/my-image.png)
 
 ### Deep dives : 
 
