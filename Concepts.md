@@ -25,6 +25,9 @@ This entry runs the mentioned script every single minute.
    - The advantage here, is that now we can scale both the services independently, eg. if there are too many writes, we can have a more scaled version for Job service
 
 2. Using Queues to decouple the services
+3. Use CDN for API cache / Media cache : but dont use CDN if your users are not geographically distributed, there is no point. Also dont use CDN if you dont want requests to keep going to CDN always i.e your data can change or you want requests to come to your servers also to know things are working.
+4. Use Redis cache to make queries faster
+5. Use Zookeeper is any server coordination is required.
 
 ### Indexing in Postgres
 - Default for primary key index is B Tree , so lookup time is O log N
