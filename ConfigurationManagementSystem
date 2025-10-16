@@ -1,0 +1,79 @@
+
+
+
+
+
+Functional Requirement
+- Creating an application
+- Create a configuration
+- Deploying the configuration across environment
+- Support for different format
+- Versioning
+- Access control
+- Dashboard for managing the configurations
+
+
+
+Non Functional Requirements
+- Availability 
+- Security
+- Latency < 200 ms
+- Scale : 10k Services/Application
+- Durability 
+
+
+
+
+Entities : 
+- Configuration
+- DeploymentStrategy
+- Version
+
+
+
+
+API : 
+- GET /configurations
+
+
+
+- POST / application
+
+
+- POST /configuration
+
+
+
+Data Model
+
+config1.0
+{
+	"clientId" : CID,
+	"applicationId" : AID,
+	"version" : 1.0
+	configurations : [
+
+		{"Key" : "Value"},
+
+		{"Key" : "Value"}
+	]
+}
+
+
+config1.1
+{
+	"clientId" : CID,
+	"applicationId" : AID,
+	"version" : 1.0
+	configurations : [
+
+		{"Key" : "Value"},
+
+		{"Key" : "Value"}
+	]
+}
+
+
+
+
+
