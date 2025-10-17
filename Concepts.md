@@ -35,7 +35,16 @@ This entry runs the mentioned script every single minute.
 - We can use CDN but it has the same problem as 302. requests would always get served from CDN
 - So we can use Redis cache  LRU with read through strategy
 
-  
+#### Concurrent HashMap vs Synchronized HashMap
+- synchronizedMap allows only one thread at a time for any operation (read or write), blocking all others.
+- ConcurrentHashMap allows concurrent reads and writes: it only locks the specific bucket/segment being updated, so operations on different buckets can proceed in parallel, giving much higher scalability.
+
+### LLD Best practices : 
+- To make this class immutable and thread-safe, I’ll make fields final and avoid setters.
+- To keep it extensible, I’ll define an interface and multiple implementations.
+- If we need real-time event propagation, we can add an Observer or publish-subscribe mechanism
+- To support future types without modifying core logic, I’ll use a Factory
+- To ensure single instance and consistency, I’ll use a Singleton. eg DBConnectionManager, ConfigurationManager, Logger, CacheManager etc
 
 Q. In redis whats the eviction strategy ?  do we dine one? where ?
 Q. What are the different types of cache usage eg Read through , write through etc
