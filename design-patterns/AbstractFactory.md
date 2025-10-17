@@ -66,3 +66,16 @@ public class OCPP20AbstractFactory implements OCPPAbstractFactory {
     }
 }
 ```
+
+#### Provider
+```
+public class OCPPAbstractFactoryProvider {
+    public static OCPPAbstractFactory getFactory(String ocppVersion) {
+        switch (ocppVersion) {
+            case "1.6": return new OCPP16AbstractFactory();
+            case "2.0": return new OCPP20AbstractFactory();
+            default: throw new IllegalArgumentException("Unsupported OCPP version: " + ocppVersion);
+        }
+    }
+}
+```
