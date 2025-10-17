@@ -1,3 +1,5 @@
+### Collections
+
 #### TreeMap
 
 - Internal Implementation: Red-Black Tree (Self-balancing BST)
@@ -103,3 +105,4 @@
         - Average get() / put() / remove() → O(1)
         - Because buckets are independent and locking is fine-grained (reducing contention).
 - When to Use: For thread-safe concurrent access without blocking the whole map
+
