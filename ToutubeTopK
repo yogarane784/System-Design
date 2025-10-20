@@ -1,0 +1,27 @@
+### Functional Requirements : 
+- Get top k most viewed videos of all time
+- Get top k most viewed videos of last year/month/week/day/hour
+
+For simplicity we will assume tumbling time windows i.e [1st Jan - 31st Jan], [1st Feb - 28th Feb].... We wont support sliding time window.
+
+#### Out of scope
+- Absolute time windows
+
+### Non functional req :
+- 1 minute of time between the event happens and it gets accounted in the top k
+- ~10 ms of latency for GET
+- 1 Billion videos
+- 100k views per second
+- Precise results (No approximation)
+
+### Core Entities
+- Video
+- View
+- TimeWindow
+
+### APIs
+- GET /views/top-k?window={}&k={}   -> [{videoId, views}]
+
+### Design
+
+- 
