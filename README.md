@@ -8,3 +8,7 @@ Upcoming topics : FOCUS 25 mins
 6. Java Questions
 7. SQL Questions
    
+
+
+- Additionally, using UNION instead of OR for combining multiple queries can improve performance
+- 
