@@ -1,4 +1,5 @@
 - ML / AI / Deep Learning/ LLM
 - NLP
 - Vector & VectorDB
-- 
+- Data Scientist / Business Analyst/ 
+- Page Ranking
