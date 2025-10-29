@@ -1,5 +1,7 @@
 - ML / AI / Deep Learning/ LLM
 - NLP
 - Vector & VectorDB
+- RAG
+- Models : Nova/Titan/Claude/DeepSeek/LLama/Grok/Gemini
 - Data Scientist / Business Analyst/ 
 - Page Ranking
