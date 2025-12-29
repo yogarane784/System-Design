@@ -1,4 +1,9 @@
-| Login with username: admin  password: wvHtEfcZEbV6WPnm
+> Login with username: admin  password: wvHtEfcZEbV6WPnm
+> ~/airflow-venv/bin/airflow standalone
+> ssh -i "Yoga_Ec2_Personal_Key.pem" ec2-user@ec2-54-184-56-7.us-west-2.compute.amazonaws.com
+> airflow standalone
+
+
 ### Deftinition
 - Apache Airflow is an open-source workflow orchestration and scheduling tool, originally created by Airbnb, and now a top-level Apache project.
 - At a high level:
